@@ -1,0 +1,53 @@
+service: aws-lambdas-reto
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-west-2
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource:
+        - arn:aws:dynamodb:us-west-2:983457670993:table/StWarsFilm 
+
+functions:
+  api:
+    handler: src/index.handler
+    events:
+      - httpApi:
+          path: /
+          method: get
+  createTask:
+    handler: src/addFilm.addFilm
+    events:
+      - httpApi:
+          path: /films
+          method: post
+  getFilms:
+    handler: src/getFilms.getFilms
+    events:
+      - httpApi:
+          path: /films
+          method: get
+  getFilm:
+    handler: src/getFilm.getFilm
+    events:
+      - httpApi:
+          path: /film/{id}
+          method: get         
+	
+resources:
+  Resources:
+    StarWarsFilm:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: StWarsFilm
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
